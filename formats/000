@@ -1,0 +1,12 @@
+First byte == 0xFF: Compressed
+First byte != 0xFF: Uncompressed
+
+
+Uncompressed layout:
+===================
+
+ Offset | Size       | Meaning
+--------|------------|--------
+      0 |          2 | Number of files
+      2 | m = n * 20 | File information
+  m + 2 |          k | Raw file data
