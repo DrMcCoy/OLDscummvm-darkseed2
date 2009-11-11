@@ -29,7 +29,8 @@ typedef int64_t int64;
 typedef uint64_t uint64;
 
 uint8 readUint8(std::ifstream &stream) {
-	return (uint8) stream.get();
+	uint8 x = (uint8) stream.get();
+	return x;
 }
 
 uint16 readUint16LE(std::ifstream &stream) {
@@ -49,7 +50,7 @@ uint32 readUint32LE(std::ifstream &stream) {
 }
 
 void readFixedString(std::ifstream &stream, char *str, int n) {
-	stream.get(str, n);
+	stream.read(str, n);
 	str[n] = '\0';
 }
 

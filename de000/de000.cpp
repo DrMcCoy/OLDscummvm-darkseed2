@@ -18,6 +18,7 @@ struct FileInfo {
 };
 
 void printHelp(const char *binName);
+void readFileList(std::ifstream &stream, std::list<FileInfo> &files, uint16 count);
 
 int main(int argc, char **argv) {
 	if (argc < 2) {
@@ -25,7 +26,6 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 
-	std::list<FileInfo> files;
 	std::ifstream file000;
 
 	file000.open(argv[1]);
@@ -46,8 +46,12 @@ int main(int argc, char **argv) {
 
 	printf("Number of file: %d\n", fileCount);
 
-	while (fileCount-- > 0) {
-		FileInfo file;
+	std::list<FileInfo> files;
+
+	readFileList(file000, files, fileCount);
+
+	for (std::list<FileInfo>::iterator it = files.begin(); it != files.end(); ++it) {
+		printf("%12s: %d, %d\n", it->name, it->offset, it->size);
 	}
 
 	return 0;
@@ -56,4 +60,17 @@ int main(int argc, char **argv) {
 void printHelp(const char *binName) {
 	printf("Usage: %s <file>\n\n", binName);
 	printf("Files will be extracted into the current directory\n");
+}
+
+void readFileList(std::ifstream &stream, std::list<FileInfo> &files, uint16 count) {
+	while (count-- > 0) {
+		FileInfo file;
+
+		readFixedString(stream, file.name, 12);
+
+		file.size   = readUint32LE(stream);
+		file.offset = readUint32LE(stream);
+
+		files.push_back(file);
+	}
 }
