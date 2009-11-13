@@ -1,18 +1,18 @@
-SOURCES=de000.cpp
-OBJECTS=de000.o
+SOURCES=deglue.cpp
+OBJECTS=deglue.o
 HEADERS=util.h
 CPP=g++
 CCFLAGS=-O2 -Wall -Werror
 LIBS=
 
-all:de000
+all:deglue
 
-de000:${OBJECTS}
+deglue:${OBJECTS}
 	${CPP} ${CCFLAGS} ${LIBS} ${OBJECTS} -o $@
 
 clean:
 	rm -f *.o
-	rm -f de000
+	rm -f deglue
 
 ${OBJECTS}:%.o:%.cpp ${HEADERS}
 	${CPP} ${CCFLAGS} $< -c -o $@

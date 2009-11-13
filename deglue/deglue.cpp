@@ -27,35 +27,35 @@ int main(int argc, char **argv) {
 		return -1;
 	}
 
-	std::ifstream file000;
+	std::ifstream glueFile;
 
-	file000.open(argv[1]);
+	glueFile.open(argv[1]);
 
-	if (!file000.is_open()) {
+	if (!glueFile.is_open()) {
 		printf("Error opening file \"%s\"\n", argv[1]);
 		return -1;
 	}
 
-	if (readUint8(file000) == 0xFF) {
+	if (readUint8(glueFile) == 0xFF) {
 		printf("Compressed format not yet supported\n");
 		return -1;
 	}
 
-	file000.seekg(0, std::ios_base::beg);
+	glueFile.seekg(0, std::ios_base::beg);
 
-	uint16 fileCount = readUint16LE(file000);
+	uint16 fileCount = readUint16LE(glueFile);
 
 	printf("Number of file: %d\n", fileCount);
 
 	std::list<FileInfo> files;
 
-	readFileList(file000, files, fileCount);
+	readFileList(glueFile, files, fileCount);
 
-	extractFiles(file000, files);
+	extractFiles(glueFile, files);
 
 
 	files.clear();
-	file000.close();
+	glueFile.close();
 
 	return 0;
 }
