@@ -1,0 +1,24 @@
+ Offset | Size       | Meaning
+--------|------------|--------
+      0 |          2 | Number of glue files (n)
+      2 |          2 | Number of resources (m)
+      4 | o = n * 64 | Glue file information
+  o + 4 |     m * 22 | Resource information
+
+
+Glue file information:
+----------------------
+
+ Offset | Size       | Meaning
+--------|------------|--------
+      0 |         32 | File name
+     32 |         32 | Unknown (ignored, reserved?)
+
+
+Resource information:
+---------------------
+
+ Offset | Size       | Meaning
+--------|------------|--------
+      0 |         12 | File name (8+3, not \0-terminated)
+     12 |         10 | Unknown
