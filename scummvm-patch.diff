@@ -1,0 +1,42 @@
+diff --git a/base/plugins.cpp b/base/plugins.cpp
+index 215942f..7489b62 100644
+--- a/base/plugins.cpp
++++ b/base/plugins.cpp
+@@ -103,6 +103,9 @@ public:
+ 		#if PLUGIN_ENABLED_STATIC(CRUISE)
+ 		LINK_PLUGIN(CRUISE)
+ 		#endif
++		#if PLUGIN_ENABLED_STATIC(DARKSEED2)
++		LINK_PLUGIN(DARKSEED2)
++		#endif
+ 		#if PLUGIN_ENABLED_STATIC(DRACI)
+ 		LINK_PLUGIN(DRACI)
+ 		#endif
+diff --git a/configure b/configure
+index cf8143d..687717d 100755
+--- a/configure
++++ b/configure
+@@ -83,6 +83,7 @@ add_engine agos "AGOS" yes "agos2"
+ add_engine agos2 "AGOS 2 games" yes
+ add_engine cine "Cinematique evo 1" yes
+ add_engine cruise "Cinematique evo 2" yes
++add_engine darkseed2 "Dark Seed II" no
+ add_engine draci "Dragon History" no
+ add_engine drascula "Drascula: The Vampire Strikes Back" yes
+ add_engine gob "Gobli*ns" yes
+diff --git a/engines/engines.mk b/engines/engines.mk
+index 485dd73..1abc00e 100644
+--- a/engines/engines.mk
++++ b/engines/engines.mk
+@@ -36,6 +36,11 @@ DEFINES += -DENABLE_CRUISE=$(ENABLE_CRUISE)
+ MODULES += engines/cruise
+ endif
+ 
++ifdef ENABLE_DARKSEED2
++DEFINES += -DENABLE_DARKSEED2=$(ENABLE_DARKSEED2)
++MODULES += engines/darkseed2
++endif
++
+ ifdef ENABLE_DRACI
+ DEFINES += -DENABLE_DRACI=$(ENABLE_DRACI)
+ MODULES += engines/draci
