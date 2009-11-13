@@ -19,6 +19,7 @@ struct FileInfo {
 
 void printHelp(const char *binName);
 void readFileList(std::ifstream &stream, std::list<FileInfo> &files, uint16 count);
+void extractFiles(std::ifstream &stream, std::list<FileInfo> &files);
 
 int main(int argc, char **argv) {
 	if (argc < 2) {
@@ -50,9 +51,11 @@ int main(int argc, char **argv) {
 
 	readFileList(file000, files, fileCount);
 
-	for (std::list<FileInfo>::iterator it = files.begin(); it != files.end(); ++it) {
-		printf("%12s: %d, %d\n", it->name, it->offset, it->size);
-	}
+	extractFiles(file000, files);
+
+
+	files.clear();
+	file000.close();
 
 	return 0;
 }
@@ -72,5 +75,41 @@ void readFileList(std::ifstream &stream, std::list<FileInfo> &files, uint16 coun
 		file.offset = readUint32LE(stream);
 
 		files.push_back(file);
+	}
+}
+
+void extractFiles(std::ifstream &stream, std::list<FileInfo> &files) {
+	for (std::list<FileInfo>::iterator it = files.begin(); it != files.end(); ++it) {
+		printf("%12s: %d, %d\n", it->name, it->offset, it->size);
+
+		std::ofstream outFile;
+
+		outFile.open(it->name);
+
+		if (!outFile.is_open()) {
+			printf("	Can't open file \"%s\" for writing\n", it->name);
+			continue;
+		}
+
+		stream.seekg(it->offset, std::ios_base::beg);
+
+		if (stream.tellg() != it->offset) {
+			printf("	Can't seek to offset %d", it->offset);
+			continue;
+		}
+
+		uint32 size = it->size;
+		char buffer[4096];
+		while (size > 0) {
+			uint32 toRead = MIN<uint32>(size, 4096);
+
+			stream.read(buffer, toRead);
+			outFile.write(buffer, toRead);
+
+			size -= toRead;
+		}
+
+		outFile.flush();
+		outFile.close();
 	}
 }
