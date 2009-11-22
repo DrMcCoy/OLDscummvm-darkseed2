@@ -1,0 +1,10 @@
+- Some bitmaps still look strange. Bug in the glue-decompressor?
+- Change the resource loader to decompress glues only when they're needed
+- Conversation box
+- Inventory
+- Inventory box
+- SpriteObject
+- Proper room handling
+- Hotspots
+- Scripts
+- Adding a real deglue tool to tools
