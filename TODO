@@ -1,8 +1,8 @@
 - Some bitmaps still look strange. Bug in the glue-decompressor?
 - Change the resource loader to decompress glues only when they're needed
 - Conversation stuff:
-	- Fallthrough > 0
 	- Entry modifier "persist"
+	- Entry action "destroy"
 	- Node with goto + entry, priority?
 	- CONV0024.TXT: "goto = exit, Greeting"?
 - Inventory
