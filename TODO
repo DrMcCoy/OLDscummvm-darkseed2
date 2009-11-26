@@ -3,6 +3,7 @@
 - Conversation stuff:
 	- Entry modifier "persist"
 	- Node with goto + entry, priority?
+	- CONV0024.TXT: "goto = exit, Greeting"?
 - Inventory
 - Inventory box
 - SpriteObject
