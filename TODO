@@ -1,6 +1,3 @@
-- I guess some images /are/ compressed. Some don't load and the "New game"
-  button has 2 curious extra pixels at the start of each line (marker for
-  literal line data?)
 - Change the resource loader to decompress glues only when they're needed
 - Conversation stuff:
 	- Entry action "destroy"
@@ -8,7 +5,8 @@
 - Inventory
 - Inventory box
 - SpriteObject
-- Proper room handling
 - Hotspots
-- Scripts
+- All script functions
+	- WaitUntil
+- Normal room execution
 - Adding a real deglue tool to tools
