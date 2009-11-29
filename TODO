@@ -6,7 +6,10 @@
 - Inventory box
 - SpriteObject
 - Hotspots
-- All script functions
-	- WaitUntil
-- Normal room execution
+- Walk maps
+- All missing script functions
 - Adding a real deglue tool to tools
+- Movie resolution doubling
+	- blitDouble in Sprite?
+- Hook the Indeo3 decoder into AviDecoder
+	- Dithering?
