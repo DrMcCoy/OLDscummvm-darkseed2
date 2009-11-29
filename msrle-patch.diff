@@ -1,0 +1,228 @@
+diff --git a/graphics/video/codecs/msrle.cpp b/graphics/video/codecs/msrle.cpp
+new file mode 100644
+index 0000000..8ea380d
+--- /dev/null
++++ b/graphics/video/codecs/msrle.cpp
+@@ -0,0 +1,133 @@
++/* ScummVM - Graphic Adventure Engine
++ *
++ * ScummVM is the legal property of its developers, whose names
++ * are too numerous to list here. Please refer to the COPYRIGHT
++ * file distributed with this source distribution.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
++ *
++ * $URL$
++ * $Id$
++ *
++ */
++
++// Based off ffmpeg's msrledec.c
++
++#include "graphics/video/codecs/msrle.h"
++
++namespace Graphics {
++
++MSRLEDecoder::MSRLEDecoder(uint16 width, uint16 height, byte bitsPerPixel) {
++	_surface = new Graphics::Surface();
++	_surface->create(width, height, 1);
++	_bitsPerPixel = bitsPerPixel;
++}
++
++MSRLEDecoder::~MSRLEDecoder() {
++	_surface->free();
++	delete _surface;
++}
++
++Surface *MSRLEDecoder::decodeImage(Common::SeekableReadStream *stream) {
++	if (_bitsPerPixel == 8) {
++		decode8(stream);
++	} else
++		error("Unhandled %d bit Microsoft RLE encoding", _bitsPerPixel);
++
++	return _surface;
++}
++
++void MSRLEDecoder::decode8(Common::SeekableReadStream *stream) {
++
++	int x = 0;
++	int y = _surface->h;
++
++	byte *data = (byte *) _surface->pixels;
++	uint16 width  = _surface->w;
++	uint16 height = _surface->h;
++
++	byte *output     = data + ((height - 1) * width);
++	byte *output_end = data + ((height)     * width);
++
++	while (!stream->eos()) {
++		byte count = stream->readByte();
++		byte value = stream->readByte();
++
++		if (count == 0) {
++			if (value == 0) {
++				// End of line
++
++				x = 0;
++				y--;
++				output = data + (y * width);
++
++				if (y < 0) {
++					warning("Next line is beyond picture bounds");
++					return;
++				}
++
++			} else if (value == 1) {
++				// End of image
++
++				return;
++			} else if (value == 2) {
++				// Skip
++
++				count = stream->readByte();
++				value = stream->readByte();
++
++				y -= value;
++				x += count;
++
++				if (y < 0) {
++					warning("Skip beyond picture bounds");
++					return;
++				}
++
++				output = data + ((y * width) + x);
++
++			} else {
++				// Copy data
++
++				if (output + value > output_end) {
++					stream->skip(value);
++					continue;
++				}
++
++				for (int i = 0; i < value; i++)
++					*output++ = stream->readByte();
++
++				if (value & 1)
++					stream->skip(1);
++
++				x += value;
++			}
++
++		} else {
++			// Run data
++
++			if (output + count > output_end)
++				continue;
++
++			for (int i = 0; i < count; i++, x++)
++				*output++ = value;
++		}
++
++	}
++
++	warning("No end-of-picture code");
++}
++
++} // End of namespace Graphics
+diff --git a/graphics/video/codecs/msrle.h b/graphics/video/codecs/msrle.h
+new file mode 100644
+index 0000000..634fe75
+--- /dev/null
++++ b/graphics/video/codecs/msrle.h
+@@ -0,0 +1,50 @@
++/* ScummVM - Graphic Adventure Engine
++ *
++ * ScummVM is the legal property of its developers, whose names
++ * are too numerous to list here. Please refer to the COPYRIGHT
++ * file distributed with this source distribution.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
++ *
++ * $URL$
++ * $Id$
++ *
++ */
++
++#ifndef GRAPHICS_MSRLE_H
++#define GRAPHICS_MSRLE_H
++
++#include "graphics/video/codecs/codec.h"
++
++namespace Graphics {
++
++class MSRLEDecoder : public Codec {
++public:
++	MSRLEDecoder(uint16 width, uint16 height, byte bitsPerPixel);
++	~MSRLEDecoder();
++
++	Surface *decodeImage(Common::SeekableReadStream *stream);
++
++private:
++	byte _bitsPerPixel;
++
++	Surface *_surface;
++
++	void decode8(Common::SeekableReadStream *stream);
++};
++
++} // End of namespace Graphics
++
++#endif
+diff --git a/graphics/module.mk b/graphics/module.mk
+index 97fff5a..253d40d 100644
+--- a/graphics/module.mk
++++ b/graphics/module.mk
+@@ -28,6 +28,7 @@ MODULE_OBJS := \
+ 	video/smk_decoder.o \
+ 	video/video_player.o \
+ 	video/codecs/msvideo1.o \
++	video/codecs/msrle.o \
+ 	video/coktelvideo/indeo3.o \
+ 	video/coktelvideo/coktelvideo.o
+ 
+diff --git a/graphics/video/avi_decoder.cpp b/graphics/video/avi_decoder.cpp
+index 5eb4d39..d1b580b 100644
+--- a/graphics/video/avi_decoder.cpp
++++ b/graphics/video/avi_decoder.cpp
+@@ -36,6 +36,7 @@
+ 
+ // Codecs
+ #include "graphics/video/codecs/msvideo1.h"
++#include "graphics/video/codecs/msrle.h"
+ 
+ namespace Graphics {
+ 
+@@ -409,6 +410,8 @@ Codec *AviDecoder::createCodec() {
+ 		case ID_MSVC:
+ 		case ID_WHAM:
+ 			return new MSVideo1Decoder(_bmInfo.width, _bmInfo.height, _bmInfo.bitCount);
++		case ID_RLE:
++			return new MSRLEDecoder(_bmInfo.width, _bmInfo.height, _bmInfo.bitCount);
+ 		default:
+ 			warning ("Unknown/Unhandled compression format \'%s\'", tag2str(_vidsHeader.streamHandler));
+ 	}
