@@ -1,6 +1,6 @@
 diff --git a/graphics/video/codecs/msrle.cpp b/graphics/video/codecs/msrle.cpp
 new file mode 100644
-index 0000000..8ea380d
+index 0000000..6409943
 --- /dev/null
 +++ b/graphics/video/codecs/msrle.cpp
 @@ -0,0 +1,133 @@
@@ -58,7 +58,7 @@ index 0000000..8ea380d
 +void MSRLEDecoder::decode8(Common::SeekableReadStream *stream) {
 +
 +	int x = 0;
-+	int y = _surface->h;
++	int y = _surface->h - 1;
 +
 +	byte *data = (byte *) _surface->pixels;
 +	uint16 width  = _surface->w;
