@@ -206,7 +206,7 @@ index 97fff5a..253d40d 100644
  	video/coktelvideo/coktelvideo.o
  
 diff --git a/graphics/video/avi_decoder.cpp b/graphics/video/avi_decoder.cpp
-index 5eb4d39..d1b580b 100644
+index bb80cdd..33a08bb 100644
 --- a/graphics/video/avi_decoder.cpp
 +++ b/graphics/video/avi_decoder.cpp
 @@ -36,6 +36,7 @@
@@ -217,11 +217,11 @@ index 5eb4d39..d1b580b 100644
  
  namespace Graphics {
  
-@@ -409,6 +410,8 @@ Codec *AviDecoder::createCodec() {
+@@ -417,6 +418,8 @@ Codec *AviDecoder::createCodec() {
  		case ID_MSVC:
  		case ID_WHAM:
  			return new MSVideo1Decoder(_bmInfo.width, _bmInfo.height, _bmInfo.bitCount);
-+		case ID_RLE:
++		case ID_RLE :
 +			return new MSRLEDecoder(_bmInfo.width, _bmInfo.height, _bmInfo.bitCount);
  		default:
  			warning ("Unknown/Unhandled compression format \'%s\'", tag2str(_vidsHeader.streamHandler));

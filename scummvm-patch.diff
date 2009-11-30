@@ -1,5 +1,5 @@
 diff --git a/base/plugins.cpp b/base/plugins.cpp
-index 215942f..7489b62 100644
+index c7688b4..2a810ad 100644
 --- a/base/plugins.cpp
 +++ b/base/plugins.cpp
 @@ -103,6 +103,9 @@ public:
@@ -13,7 +13,7 @@ index 215942f..7489b62 100644
  		LINK_PLUGIN(DRACI)
  		#endif
 diff --git a/configure b/configure
-index cf8143d..687717d 100755
+index 947aa91..99e428b 100755
 --- a/configure
 +++ b/configure
 @@ -83,6 +83,7 @@ add_engine agos "AGOS" yes "agos2"
@@ -21,11 +21,11 @@ index cf8143d..687717d 100755
  add_engine cine "Cinematique evo 1" yes
  add_engine cruise "Cinematique evo 2" yes
 +add_engine darkseed2 "Dark Seed II" no
- add_engine draci "Dragon History" no
+ add_engine draci "Dragon History" yes
  add_engine drascula "Drascula: The Vampire Strikes Back" yes
  add_engine gob "Gobli*ns" yes
 diff --git a/engines/engines.mk b/engines/engines.mk
-index 485dd73..1abc00e 100644
+index 35be7f1..f20599f 100644
 --- a/engines/engines.mk
 +++ b/engines/engines.mk
 @@ -36,6 +36,11 @@ DEFINES += -DENABLE_CRUISE=$(ENABLE_CRUISE)
