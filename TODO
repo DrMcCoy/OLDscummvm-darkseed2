@@ -8,8 +8,6 @@
 - Animation drawing order
 - Mike
 - Walk maps
-- Script lock-up before entering the diner and poolhall
-- Script lock-up after entering the morgue and police station
 - All missing script functions
 - Adding a real deglue tool to tools
 - Hook the Indeo3 decoder into AviDecoder
