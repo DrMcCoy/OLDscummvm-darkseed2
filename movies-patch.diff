@@ -410,3 +410,30 @@ index 795c0f3..ddbc93e 100644
  		default:
  			warning ("Unknown/Unhandled compression format \'%s\'", tag2str(_vidsHeader.streamHandler));
  	}
+diff --git a/graphics/video/codecs/indeo3.cpp b/graphics/video/codecs/indeo3.cpp
+index e38aa00..3d91031 100644
+--- a/graphics/video/codecs/indeo3.cpp
++++ b/graphics/video/codecs/indeo3.cpp
+@@ -68,15 +68,20 @@ Surface *Indeo3Decoder::decodeImage(Common::SeekableReadStream *stream) {
+ 	uint32 size = stream->size();
+ 	byte  *data = new byte[size];
+ 
+-	if (stream->read(data, size) != size)
++	if (stream->read(data, size) != size) {
++		delete[] data;
+ 		return 0;
++	}
+ 
+-	if (!_indeo3->decompressFrame(data, size, (byte *) _surface->pixels, _surface->w, _surface->h))
++	if (!_indeo3->decompressFrame(data, size, (byte *) _surface->pixels, _surface->w, _surface->h)) {
++		delete[] data;
+ 		return 0;
++	}
+ 
+ 	if (!_paletteSet)
+ 		setSystemPalette(_palette);
+ 
++	delete[] data;
+ 	return _surface;
+ }
+ 
