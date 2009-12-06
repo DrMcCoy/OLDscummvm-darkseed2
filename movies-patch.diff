@@ -1,3 +1,173 @@
+diff --git a/graphics/video/codecs/indeo3.cpp b/graphics/video/codecs/indeo3.cpp
+new file mode 100644
+index 0000000..e38aa00
+--- /dev/null
++++ b/graphics/video/codecs/indeo3.cpp
+@@ -0,0 +1,101 @@
++/* ScummVM - Graphic Adventure Engine
++ *
++ * ScummVM is the legal property of its developers, whose names
++ * are too numerous to list here. Please refer to the COPYRIGHT
++ * file distributed with this source distribution.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
++ *
++ * $URL$
++ * $Id$
++ *
++ */
++
++#include "common/system.h"
++
++#include "graphics/video/codecs/indeo3.h"
++#include "graphics/dither.h"
++#include "graphics/video/coktelvideo/indeo3.h"
++
++namespace Graphics {
++
++Indeo3Decoder::Indeo3Decoder(uint16 width, uint16 height) {
++	_surface = new Graphics::Surface();
++	_surface->create(width, height, 1);
++
++	_palLUT = new PaletteLUT(5, PaletteLUT::kPaletteYUV);
++
++	// Creating a standard palette
++	for (int r = 0; r < 8; r++) {
++		for (int g = 0; g < 8; g++) {
++			for (int b = 0; b < 4; b++) {
++				int n = (r << 5 | g << 2 | b) * 3;
++				_palette[n + 0] = r * 31;
++				_palette[n + 1] = g * 31;
++				_palette[n + 2] = b * 63;
++			}
++		}
++	}
++
++	_paletteSet = false;
++
++	_palLUT->setPalette(_palette, PaletteLUT::kPaletteRGB, 8);
++
++	_indeo3 = new Indeo3(width, height, _palLUT);
++}
++
++Indeo3Decoder::~Indeo3Decoder() {
++	delete _indeo3;
++	delete _palLUT;
++
++	_surface->free();
++	delete _surface;
++}
++
++Surface *Indeo3Decoder::decodeImage(Common::SeekableReadStream *stream) {
++	uint32 size = stream->size();
++	byte  *data = new byte[size];
++
++	if (stream->read(data, size) != size)
++		return 0;
++
++	if (!_indeo3->decompressFrame(data, size, (byte *) _surface->pixels, _surface->w, _surface->h))
++		return 0;
++
++	if (!_paletteSet)
++		setSystemPalette(_palette);
++
++	return _surface;
++}
++
++void Indeo3Decoder::setSystemPalette(const byte *palette) {
++	byte sysPal[1024];
++
++	const byte *mPal = palette;
++	byte *sPal = sysPal;
++
++	for (int i = 0 ; i < 256; i++, mPal += 3, sPal += 4) {
++		sPal[0] = mPal[0];
++		sPal[1] = mPal[1];
++		sPal[2] = mPal[2];
++		sPal[3] = 255;
++	}
++
++	g_system->setPalette(sysPal, 0, 256);
++
++	_paletteSet = true;
++}
++
++} // End of namespace Graphics
+diff --git a/graphics/video/codecs/indeo3.h b/graphics/video/codecs/indeo3.h
+new file mode 100644
+index 0000000..dd346dc
+--- /dev/null
++++ b/graphics/video/codecs/indeo3.h
+@@ -0,0 +1,57 @@
++/* ScummVM - Graphic Adventure Engine
++ *
++ * ScummVM is the legal property of its developers, whose names
++ * are too numerous to list here. Please refer to the COPYRIGHT
++ * file distributed with this source distribution.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
++ *
++ * $URL$
++ * $Id$
++ *
++ */
++
++#ifndef GRAPHICS_INDEO3_H
++#define GRAPHICS_INDEO3_H
++
++#include "graphics/video/codecs/codec.h"
++
++namespace Graphics {
++
++class PaletteLUT;
++class Indeo3;
++
++class Indeo3Decoder : public Codec {
++public:
++	Indeo3Decoder(uint16 width, uint16 height);
++	~Indeo3Decoder();
++
++	Surface *decodeImage(Common::SeekableReadStream *stream);
++
++private:
++	Surface *_surface;
++
++	PaletteLUT *_palLUT;
++	Indeo3 *_indeo3;
++
++	byte _palette[768];
++	bool _paletteSet;
++
++	void setSystemPalette(const byte *palette);
++};
++
++} // End of namespace Graphics
++
++#endif
 diff --git a/graphics/video/codecs/msrle.cpp b/graphics/video/codecs/msrle.cpp
 new file mode 100644
 index 0000000..6409943
@@ -194,35 +364,49 @@ index 0000000..634fe75
 +
 +#endif
 diff --git a/graphics/module.mk b/graphics/module.mk
-index 97fff5a..253d40d 100644
+index 97fff5a..dbe55c2 100644
 --- a/graphics/module.mk
 +++ b/graphics/module.mk
-@@ -28,6 +28,7 @@ MODULE_OBJS := \
+@@ -28,6 +28,8 @@ MODULE_OBJS := \
  	video/smk_decoder.o \
  	video/video_player.o \
  	video/codecs/msvideo1.o \
 +	video/codecs/msrle.o \
++	video/codecs/indeo3.o \
  	video/coktelvideo/indeo3.o \
  	video/coktelvideo/coktelvideo.o
  
 diff --git a/graphics/video/avi_decoder.cpp b/graphics/video/avi_decoder.cpp
-index bb80cdd..33a08bb 100644
+index 795c0f3..ddbc93e 100644
 --- a/graphics/video/avi_decoder.cpp
 +++ b/graphics/video/avi_decoder.cpp
-@@ -36,6 +36,7 @@
+@@ -36,6 +36,8 @@
  
  // Codecs
  #include "graphics/video/codecs/msvideo1.h"
 +#include "graphics/video/codecs/msrle.h"
++#include "graphics/video/codecs/indeo3.h"
  
  namespace Graphics {
  
-@@ -417,6 +418,8 @@ Codec *AviDecoder::createCodec() {
+@@ -324,7 +326,8 @@ Surface *AviDecoder::getNextFrame() {
+ 		_fileStream->read(data, chunkSize);
+ 		_audStream->queueBuffer(data, chunkSize);
+ 		_fileStream->skip(chunkSize & 1); // Alignment
+-	} else if (getStreamType(nextTag) == 'dc' || getStreamType(nextTag) == 'id' || getStreamType(nextTag) == 'AM') {		
++	} else if (getStreamType(nextTag) == 'dc' || getStreamType(nextTag) == 'id' ||
++	           getStreamType(nextTag) == 'AM' || getStreamType(nextTag) == '32') {
+ 		// Compressed Frame
+ 		_videoInfo.currentFrame++;
+ 		uint32 chunkSize = _fileStream->readUint32LE();
+@@ -417,6 +420,10 @@ Codec *AviDecoder::createCodec() {
  		case ID_MSVC:
  		case ID_WHAM:
  			return new MSVideo1Decoder(_bmInfo.width, _bmInfo.height, _bmInfo.bitCount);
 +		case ID_RLE :
 +			return new MSRLEDecoder(_bmInfo.width, _bmInfo.height, _bmInfo.bitCount);
++		case ID_IV32:
++			return new Indeo3Decoder(_bmInfo.width, _bmInfo.height);
  		default:
  			warning ("Unknown/Unhandled compression format \'%s\'", tag2str(_vidsHeader.streamHandler));
  	}

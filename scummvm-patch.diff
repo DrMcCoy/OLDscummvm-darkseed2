@@ -13,7 +13,7 @@ index c7688b4..2a810ad 100644
  		LINK_PLUGIN(DRACI)
  		#endif
 diff --git a/configure b/configure
-index 947aa91..99e428b 100755
+index eb376ec..79fe191 100755
 --- a/configure
 +++ b/configure
 @@ -83,6 +83,7 @@ add_engine agos "AGOS" yes "agos2"
@@ -24,6 +24,15 @@ index 947aa91..99e428b 100755
  add_engine draci "Dragon History" yes
  add_engine drascula "Drascula: The Vampire Strikes Back" yes
  add_engine gob "Gobli*ns" yes
+@@ -1848,7 +1849,7 @@ add_to_config_mk_if_no $_build_scalers      'DISABLE_SCALERS = 1'
+ #
+ if test "$_indeo3" = auto ; then
+ 	# Autodetect. Build if either the gob engine or plugins are enabled
+-	if test `get_engine_build gob` = yes || test "$_dynamic_modules" = yes ; then
++	if test `get_engine_build gob` = yes || test `get_engine_build darkseed2` = yes || test "$_dynamic_modules" = yes ; then
+ 		_indeo3="yes"
+ 	else
+ 		_indeo3="no"
 diff --git a/engines/engines.mk b/engines/engines.mk
 index 35be7f1..f20599f 100644
 --- a/engines/engines.mk
