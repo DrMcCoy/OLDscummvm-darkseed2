@@ -1,13 +1,10 @@
 - Conversation stuff:
 	- Entry action "destroy"
 	- CONV0024.TXT: "goto = exit, Greeting"?
-- Inventory
-- Inventory box
+- Inventory box scrolling
 - Animation frames clear/stay
 - Animation drawing order
 - Mike
 - Walk maps
 - All missing script functions
 - Adding a real deglue tool to tools
-- Hook the Indeo3 decoder into AviDecoder
-	- Dithering?
