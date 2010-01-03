@@ -1,9 +1,14 @@
 - Conversation stuff:
 	- Entry action "destroy"
 	- CONV0024.TXT: "goto = exit, Greeting"?
+- Scaling still not completely correct
 - Animation frames clear/stay
 - Animation drawing order
-- Mike
-- Walk maps
+- "Strange" sprite feet values, reason for the remaining drawing order problems?
+- Pathfinding
+- Save/Load
+- Fortune teller animations glitchy
+- Lock-up when giving something to the fortune teller
+- Lock-up when entering the hall of mirrors
 - All missing script functions
 - Adding a real deglue tool to tools
