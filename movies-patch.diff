@@ -1,9 +1,9 @@
 diff --git a/graphics/video/codecs/indeo3.cpp b/graphics/video/codecs/indeo3.cpp
 new file mode 100644
-index 0000000..e38aa00
+index 0000000..3d91031
 --- /dev/null
 +++ b/graphics/video/codecs/indeo3.cpp
-@@ -0,0 +1,101 @@
+@@ -0,0 +1,106 @@
 +/* ScummVM - Graphic Adventure Engine
 + *
 + * ScummVM is the legal property of its developers, whose names
@@ -74,15 +74,20 @@ index 0000000..e38aa00
 +	uint32 size = stream->size();
 +	byte  *data = new byte[size];
 +
-+	if (stream->read(data, size) != size)
++	if (stream->read(data, size) != size) {
++		delete[] data;
 +		return 0;
++	}
 +
-+	if (!_indeo3->decompressFrame(data, size, (byte *) _surface->pixels, _surface->w, _surface->h))
++	if (!_indeo3->decompressFrame(data, size, (byte *) _surface->pixels, _surface->w, _surface->h)) {
++		delete[] data;
 +		return 0;
++	}
 +
 +	if (!_paletteSet)
 +		setSystemPalette(_palette);
 +
++	delete[] data;
 +	return _surface;
 +}
 +
@@ -377,10 +382,10 @@ index 97fff5a..dbe55c2 100644
  	video/coktelvideo/coktelvideo.o
  
 diff --git a/graphics/video/avi_decoder.cpp b/graphics/video/avi_decoder.cpp
-index 795c0f3..ddbc93e 100644
+index 5d31074..5bd8a4e 100644
 --- a/graphics/video/avi_decoder.cpp
 +++ b/graphics/video/avi_decoder.cpp
-@@ -36,6 +36,8 @@
+@@ -37,6 +37,8 @@
  
  // Codecs
  #include "graphics/video/codecs/msvideo1.h"
@@ -389,17 +394,17 @@ index 795c0f3..ddbc93e 100644
  
  namespace Graphics {
  
-@@ -324,7 +326,8 @@ Surface *AviDecoder::getNextFrame() {
- 		_fileStream->read(data, chunkSize);
- 		_audStream->queueBuffer(data, chunkSize);
+@@ -332,7 +334,8 @@ Surface *AviDecoder::getNextFrame() {
+ 
+ 		_audStream->queueBuffer(data, chunkSize, DisposeAfterUse::YES, flags);
  		_fileStream->skip(chunkSize & 1); // Alignment
--	} else if (getStreamType(nextTag) == 'dc' || getStreamType(nextTag) == 'id' || getStreamType(nextTag) == 'AM') {		
+-	} else if (getStreamType(nextTag) == 'dc' || getStreamType(nextTag) == 'id' || getStreamType(nextTag) == 'AM') {
 +	} else if (getStreamType(nextTag) == 'dc' || getStreamType(nextTag) == 'id' ||
 +	           getStreamType(nextTag) == 'AM' || getStreamType(nextTag) == '32') {
  		// Compressed Frame
  		_videoInfo.currentFrame++;
  		uint32 chunkSize = _fileStream->readUint32LE();
-@@ -417,6 +420,10 @@ Codec *AviDecoder::createCodec() {
+@@ -427,6 +430,10 @@ Codec *AviDecoder::createCodec() {
  		case ID_MSVC:
  		case ID_WHAM:
  			return new MSVideo1Decoder(_bmInfo.width, _bmInfo.height, _bmInfo.bitCount);
@@ -410,30 +415,3 @@ index 795c0f3..ddbc93e 100644
  		default:
  			warning ("Unknown/Unhandled compression format \'%s\'", tag2str(_vidsHeader.streamHandler));
  	}
-diff --git a/graphics/video/codecs/indeo3.cpp b/graphics/video/codecs/indeo3.cpp
-index e38aa00..3d91031 100644
---- a/graphics/video/codecs/indeo3.cpp
-+++ b/graphics/video/codecs/indeo3.cpp
-@@ -68,15 +68,20 @@ Surface *Indeo3Decoder::decodeImage(Common::SeekableReadStream *stream) {
- 	uint32 size = stream->size();
- 	byte  *data = new byte[size];
- 
--	if (stream->read(data, size) != size)
-+	if (stream->read(data, size) != size) {
-+		delete[] data;
- 		return 0;
-+	}
- 
--	if (!_indeo3->decompressFrame(data, size, (byte *) _surface->pixels, _surface->w, _surface->h))
-+	if (!_indeo3->decompressFrame(data, size, (byte *) _surface->pixels, _surface->w, _surface->h)) {
-+		delete[] data;
- 		return 0;
-+	}
- 
- 	if (!_paletteSet)
- 		setSystemPalette(_palette);
- 
-+	delete[] data;
- 	return _surface;
- }
- 
