@@ -1,9 +1,9 @@
 diff --git a/graphics/video/codecs/indeo3.cpp b/graphics/video/codecs/indeo3.cpp
 new file mode 100644
-index 0000000..3d91031
+index 0000000..0e10c89
 --- /dev/null
 +++ b/graphics/video/codecs/indeo3.cpp
-@@ -0,0 +1,106 @@
+@@ -0,0 +1,110 @@
 +/* ScummVM - Graphic Adventure Engine
 + *
 + * ScummVM is the legal property of its developers, whose names
@@ -70,6 +70,10 @@ index 0000000..3d91031
 +	delete _surface;
 +}
 +
++PixelFormat Indeo3Decoder::getPixelFormat() const {
++	return PixelFormat::createFormatCLUT8();
++}
++
 +Surface *Indeo3Decoder::decodeImage(Common::SeekableReadStream *stream) {
 +	uint32 size = stream->size();
 +	byte  *data = new byte[size];
@@ -112,10 +116,10 @@ index 0000000..3d91031
 +} // End of namespace Graphics
 diff --git a/graphics/video/codecs/indeo3.h b/graphics/video/codecs/indeo3.h
 new file mode 100644
-index 0000000..dd346dc
+index 0000000..8e6ebde
 --- /dev/null
 +++ b/graphics/video/codecs/indeo3.h
-@@ -0,0 +1,57 @@
+@@ -0,0 +1,59 @@
 +/* ScummVM - Graphic Adventure Engine
 + *
 + * ScummVM is the legal property of its developers, whose names
@@ -156,6 +160,8 @@ index 0000000..dd346dc
 +	Indeo3Decoder(uint16 width, uint16 height);
 +	~Indeo3Decoder();
 +
++	PixelFormat getPixelFormat() const;
++
 +	Surface *decodeImage(Common::SeekableReadStream *stream);
 +
 +private:
@@ -174,33 +180,33 @@ index 0000000..dd346dc
 +
 +#endif
 diff --git a/graphics/module.mk b/graphics/module.mk
-index 378ec97..7a1e108 100644
+index 75e3919..dca033a 100644
 --- a/graphics/module.mk
 +++ b/graphics/module.mk
-@@ -29,6 +29,7 @@ MODULE_OBJS := \
- 	video/video_player.o \
- 	video/codecs/msrle.o \
- 	video/codecs/msvideo1.o \
+@@ -37,6 +37,7 @@ MODULE_OBJS := \
+ 	video/codecs/qtrle.o \
+ 	video/codecs/rpza.o \
+ 	video/codecs/smc.o \
 +	video/codecs/indeo3.o \
  	video/coktelvideo/indeo3.o \
  	video/coktelvideo/coktelvideo.o
  
 diff --git a/graphics/video/avi_decoder.cpp b/graphics/video/avi_decoder.cpp
-index 037ea6d..802fca3 100644
+index 4c3c770..2ccd9d7 100644
 --- a/graphics/video/avi_decoder.cpp
 +++ b/graphics/video/avi_decoder.cpp
 @@ -38,6 +38,7 @@
- // Codecs
+ #include "graphics/video/codecs/cinepak.h"
  #include "graphics/video/codecs/msvideo1.h"
  #include "graphics/video/codecs/msrle.h"
 +#include "graphics/video/codecs/indeo3.h"
  
  namespace Graphics {
  
-@@ -431,6 +432,8 @@ Codec *AviDecoder::createCodec() {
- 			return new MSVideo1Decoder(_bmInfo.width, _bmInfo.height, _bmInfo.bitCount);
- 		case ID_RLE :
+@@ -391,6 +392,8 @@ Codec *AviDecoder::createCodec() {
  			return new MSRLEDecoder(_bmInfo.width, _bmInfo.height, _bmInfo.bitCount);
+ 		case ID_CVID:
+ 			return new CinepakDecoder();
 +		case ID_IV32:
 +			return new Indeo3Decoder(_bmInfo.width, _bmInfo.height);
  		default:
