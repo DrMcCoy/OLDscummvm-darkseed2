@@ -1,6 +1,6 @@
 diff --git a/graphics/video/codecs/indeo3.cpp b/graphics/video/codecs/indeo3.cpp
 new file mode 100644
-index 0000000..0e10c89
+index 0000000..57de34a
 --- /dev/null
 +++ b/graphics/video/codecs/indeo3.cpp
 @@ -0,0 +1,110 @@
@@ -88,8 +88,8 @@ index 0000000..0e10c89
 +		return 0;
 +	}
 +
-+	if (!_paletteSet)
-+		setSystemPalette(_palette);
++//	if (!_paletteSet)
++//		setSystemPalette(_palette);
 +
 +	delete[] data;
 +	return _surface;
